@@ -1,2 +1,2 @@
-include ':app', ':mygameyour', ':splendidmobile'
+include ':app'
 rootProject.name='ebitengame'
