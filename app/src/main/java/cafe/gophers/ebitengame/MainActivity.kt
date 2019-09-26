@@ -6,41 +6,29 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.provider.Settings
 import android.text.Editable
 import android.text.InputType
 import android.util.Log
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
-import cafe.gophers.ebitengame.splendidmobile.Counter
+import cafe.gophers.ebitengame.splendidmobile.*
+import cafe.gophers.ebitengame.splendidmobile.GameMobileInterface
 import cafe.gophers.ebitengame.splendidmobile.EbitenView
-import cafe.gophers.ebitengame.splendidmobile.VibrateDevice
 import cafe.gophers.ebitengame.splendidmobile.Splendidmobile
 import go.Seq
-import kotlinx.android.synthetic.main.activity_main.*
-import android.app.Activity
-import android.view.inputmethod.InputMethodManager
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import java.security.AccessController.getContext
 
 
-
-
-class MainActivity : AppCompatActivity(), VibrateDevice {
+class MainActivity : AppCompatActivity(), GameMobileInterface {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Seq.setContext(applicationContext)
 
-        val c = Counter()
-        c.inc()
-        Log.e("Magnus", c.value.toString())
-        Splendidmobile.updateVibrateDevice(this)
-
-
+        Splendidmobile.setMobileConnector(this)
     }
 
     private fun getEbitenView(): EbitenView {
@@ -49,15 +37,23 @@ class MainActivity : AppCompatActivity(), VibrateDevice {
 
     override fun onPause() {
         super.onPause()
-        this.getEbitenView().onPause()
+        this.getEbitenView().suspendGame()
 
+    }
+
+    override fun getDeviceID(): String {
+        return Settings.Secure.getString(contentResolver,
+            Settings.Secure.ANDROID_ID)
     }
 
     override fun onResume() {
         super.onResume()
-        this.getEbitenView().onResume()
+        this.getEbitenView().resumeGame()
     }
 
+    override fun showEndDialog() {
+        //Don't do anything yet
+    }
 
     override fun vibrate() {
         Log.e("Magnus", "vibrate!")
